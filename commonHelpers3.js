@@ -1,2 +1,2 @@
 import"./assets/styles-618a3959.js";import{i as s}from"./assets/vendor-651d7991.js";const i=document.querySelector(".form");document.querySelector("button");let n=i.elements.delay;i.addEventListener("submit",m);function l(e,o){return new Promise((r,t)=>{setTimeout(()=>{o==="fulfilled"?r(e):t(e)},e)})}function m(e){e.preventDefault();let o=n.value,r=i.elements.state.value;l(o,r).then(t=>{s.success({position:"topRight",title:"OK",message:`✅ Fulfilled promise in ${t}ms`})}).catch(t=>{s.error({position:"topRight",title:"Error",message:`❌ Rejected promise in ${t}ms`})}).finally(()=>{i.reset()}),n.value=""}
-//# sourceMappingURL=commonHelpers2.js.map
+//# sourceMappingURL=commonHelpers3.js.map
