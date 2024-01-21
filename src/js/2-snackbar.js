@@ -1,42 +1,63 @@
-import iziToast from 'izitoast';
-import 'izitoast/dist/css/iziToast.min.css';
+import iziToast from "izitoast";
+import "izitoast/dist/css/iziToast.min.css";
 
-const form = document.querySelector('.form');
-const createPromisBtn = document.querySelector('button');
-let inputValue = form.elements.delay;
-
-form.addEventListener('submit', onCreatePromise);
-
-function createPromise(delay, state) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      state === 'fulfilled' ? resolve(delay) : reject(delay);
-    }, delay);
-  });
+function showNotificationError(delay) {
+    iziToast.error({
+    message: `❌ Rejected promise in ${delay}ms`,
+    position: 'topRight',
+    timeout: 2000,
+    close: false,
+    overlay: false,
+    displayMode: 'once',
+    color: '#EF4040',
+    messageColor: '#FFFFFF',
+    messageSize: '16px',
+        iconColor: '#FFFFFF',
+    icon: '',
+    theme: 'dark',
+    messageLineHeight: '24px',
+    iconColor: '#FFFFFF',
+    });
 }
 
-function onCreatePromise(event) {
-  event.preventDefault();
-  let delay = inputValue.value;
-  let state = form.elements.state.value;
-  createPromise(delay, state)
-    .then(delay => {
-      iziToast.success({
-        position: 'topRight',
-        title: 'OK',
-        message: `✅ Fulfilled promise in ${delay}ms`,
-      });
-    })
-    .catch(error => {
-      iziToast.error({
-        position: 'topRight',
-        title: 'Error',
-        message: `❌ Rejected promise in ${error}ms`,
-      });
-    })
-    .finally(() => {
-      form.reset();
+function showNotificationSuccess(delay) {
+    iziToast.success({
+    message: `✅ Fulfilled promise in ${delay}ms`,
+    position: 'topRight',
+    timeout: 2000,
+    close: false,
+    overlay: false,
+    displayMode: 'once',
+    color: '#59A10D',
+    messageColor: '#FFFFFF',
+    messageSize: '16px',
+        iconColor: '#FFFFFF',
+    icon: '',
+    theme: 'dark',
+    messageLineHeight: '24px',
+    iconColor: '#FFFFFF',
     });
+}
 
-  inputValue.value = '';
+const form = document.querySelector('.form');
+
+form.addEventListener('submit', onFormSubmit);
+
+function onFormSubmit(e) { 
+    e.preventDefault();
+    const delay = Number(e.currentTarget.elements.delay.value);
+    const state = e.currentTarget.elements.state.value;
+    console.log(state);
+    const promise = new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (state === 'fulfilled') {
+                resolve(delay);
+            }
+            reject(delay);
+        }, delay);
+    });
+    promise
+        .then(value => showNotificationSuccess(value))
+        .catch(error => showNotificationError(error));
+    e.currentTarget.reset();
 }
