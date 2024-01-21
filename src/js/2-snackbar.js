@@ -1,42 +1,47 @@
-import iziToast from 'izitoast';
-import 'izitoast/dist/css/iziToast.min.css';
+import iziToast from "izitoast";
+import "izitoast/dist/css/iziToast.min.css";
+
+// `❌ Rejected promise in ${delay}ms`;
+// `✅ Fulfilled promise in ${delay}ms`;
 
 const form = document.querySelector('.form');
-const createPromisBtn = document.querySelector('button');
-let inputValue = form.elements.delay;
+// const button = document.querySelector('.snackbar-button');
 
-form.addEventListener('submit', onCreatePromise);
-
-function createPromise(delay, state) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      state === 'fulfilled' ? resolve(delay) : reject(delay);
-    }, delay);
-  });
-}
-
-function onCreatePromise(event) {
-  event.preventDefault();
-  let delay = inputValue.value;
-  let state = form.elements.state.value;
-  createPromise(delay, state)
-    .then(delay => {
-      iziToast.success({
-        position: 'topRight',
-        title: 'OK',
-        message: `✅ Fulfilled promise in ${delay}ms`,
-      });
-    })
-    .catch(error => {
-      iziToast.error({
-        position: 'topRight',
-        title: 'Error',
-        message: `❌ Rejected promise in ${error}ms`,
-      });
-    })
-    .finally(() => {
-      form.reset();
+function createPromise(event) {
+    event.preventDefault();
+    const delay = (document.getElementsByName('delay')[0]).value;
+    const promiseTypes = document.querySelectorAll('input[name="state"]');
+    let selectedValue;
+    Array.from(promiseTypes).forEach(option => {
+        if (option.checked) {
+            selectedValue = option.value;
+        }
     });
 
-  inputValue.value = '';
+    const promise = new Promise((resolve, reject) => {
+        if (isNaN(delay) || delay >= 0) {
+            setTimeout(() => {
+                if (selectedValue === 'fulfilled') {
+                    resolve(delay);
+                } else {
+                    reject(delay);
+                }
+            }, delay);
+        }
+    })
+    promise
+        .then((result) => {
+            iziToast.show({
+                title: `✅ Fulfilled promise in ${result}ms`,
+                position: "topRight",
+            })
+        })
+            .catch((error) => {
+                iziToast.show({
+                    title: `❌ Rejected promise in ${error}ms`,
+                    position: "topRight",
+                })
+            })
 }
+            
+form.addEventListener('submit', createPromise);
