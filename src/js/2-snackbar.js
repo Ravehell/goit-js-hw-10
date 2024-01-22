@@ -1,63 +1,57 @@
 import iziToast from "izitoast";
 import "izitoast/dist/css/iziToast.min.css";
 
-function showNotificationError(delay) {
-    iziToast.error({
-    message: `❌ Rejected promise in ${delay}ms`,
-    position: 'topRight',
-    timeout: 2000,
-    close: false,
-    overlay: false,
-    displayMode: 'once',
-    color: '#EF4040',
-    messageColor: '#FFFFFF',
-    messageSize: '16px',
-        iconColor: '#FFFFFF',
-    icon: '',
-    theme: 'dark',
-    messageLineHeight: '24px',
-    iconColor: '#FFFFFF',
-    });
-}
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector('.form');
 
-function showNotificationSuccess(delay) {
-    iziToast.success({
-    message: `✅ Fulfilled promise in ${delay}ms`,
-    position: 'topRight',
-    timeout: 2000,
-    close: false,
-    overlay: false,
-    displayMode: 'once',
-    color: '#59A10D',
-    messageColor: '#FFFFFF',
-    messageSize: '16px',
-        iconColor: '#FFFFFF',
-    icon: '',
-    theme: 'dark',
-    messageLineHeight: '24px',
-    iconColor: '#FFFFFF',
-    });
-}
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
 
-const form = document.querySelector('.form');
+    const delayInput = form.querySelector('input[name="delay"]');
+    const stateInputs = form.querySelectorAll('input[name="state"]');
 
-form.addEventListener('submit', onFormSubmit);
+    const delay = parseInt(delayInput.value, 10);
 
-function onFormSubmit(e) { 
-    e.preventDefault();
-    const delay = Number(e.currentTarget.elements.delay.value);
-    const state = e.currentTarget.elements.state.value;
-    console.log(state);
+    const selectedStateInput = Array.from(stateInputs).find(input => input.checked);
+
+    if (!selectedStateInput) {
+      iziToast.error({
+        title: 'Error',
+        message: 'Please select a state (Fulfilled or Rejected).',
+        position: 'topRight',
+      });
+      return;
+    }
+
+    const state = selectedStateInput.value;
+
+    form.reset();
+
     const promise = new Promise((resolve, reject) => {
+      if (state === 'fulfilled') {
         setTimeout(() => {
-            if (state === 'fulfilled') {
-                resolve(delay);
-            }
-            reject(delay);
+          resolve(delay);
         }, delay);
+      } else {
+        setTimeout(() => {
+          reject(delay);
+        }, delay);
+      }
     });
-    promise
-        .then(value => showNotificationSuccess(value))
-        .catch(error => showNotificationError(error));
-    e.currentTarget.reset();
-}
+
+    try {
+      const result = await promise;
+      iziToast.success({
+        title: 'Success',
+        message: `✅ Fulfilled promise in ${result}ms`,
+        position: 'topRight',
+      });
+    } catch (error) {
+      iziToast.error({
+        title: 'Error',
+        message: `❌ Rejected promise in ${error}ms`,
+        position: 'topRight',
+      });
+    }
+  });
+});
