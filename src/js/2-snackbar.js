@@ -7,50 +7,37 @@ document.addEventListener('DOMContentLoaded', () => {
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
 
-    const delayInput = form.querySelector('input[name="delay"]');
-    const stateInputs = form.querySelectorAll('input[name="state"]');
+    const delayInput = form.elements['delay'];
+    const delay = parseInt(delayInput.value);
 
-    const delay = parseInt(delayInput.value, 10);
-
-    const selectedStateInput = Array.from(stateInputs).find(input => input.checked);
-
-    if (!selectedStateInput) {
-      iziToast.error({
-        title: 'Error',
-        message: 'Please select a state (Fulfilled or Rejected).',
-        position: 'topRight',
-      });
-      return;
-    }
-
-    const state = selectedStateInput.value;
-
-    form.reset();
-
-    const promise = new Promise((resolve, reject) => {
-      if (state === 'fulfilled') {
-        setTimeout(() => {
-          resolve(delay);
-        }, delay);
-      } else {
-        setTimeout(() => {
-          reject(delay);
-        }, delay);
-      }
-    });
+    const stateInput = form.elements['state'];
+    const state = stateInput.value;
 
     try {
-      const result = await promise;
+      const result = await new Promise((resolve, reject) => {
+        if (state === 'fulfilled') {
+          setTimeout(() => {
+            resolve(delay);
+          }, delay);
+        } else {
+          setTimeout(() => {
+            reject(delay);
+          }, delay);
+        }
+        form.reset();
+      });
+
       iziToast.success({
         title: 'Success',
         message: `✅ Fulfilled promise in ${result}ms`,
-        position: 'topRight',
+        position: 'topRight'
       });
+
     } catch (error) {
       iziToast.error({
         title: 'Error',
         message: `❌ Rejected promise in ${error}ms`,
-        position: 'topRight',
+        position: 'topRight'
       });
     }
   });
